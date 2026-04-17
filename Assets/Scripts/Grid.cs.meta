@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 77c9e61e875e305429cf1ea97b335da2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - gridTilePrefab: {instanceID: 0}
+  - whiteTileMaterial: {fileID: 2100000, guid: f72ce4e63ef984846bc2f1bf43236222, type: 2}
+  - blackTileMaterial: {fileID: 2100000, guid: f72ce4e63ef984846bc2f1bf43236222, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
