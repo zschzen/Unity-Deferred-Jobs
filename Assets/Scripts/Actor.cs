@@ -68,7 +68,7 @@ namespace Thread.Core
         private void Update()
         {
             if (grid.gridTiles.Count < 1) return;
-            
+
             Profiler.BeginSample("UpdateExposureMap");
             UpdateExposureMap(RaysPerFrame);
             Profiler.EndSample();
@@ -97,23 +97,28 @@ namespace Thread.Core
 
             if (hasPendingExposureResults && ExposureMap.IsCreated)
             {
-                // Publish each completed slice immediately so early indices do not lag behind the rest of the grid.
-                grid.SetExposureMap(ExposureMap);
+                if (TimeSliceBaseIndex < 0)
+                {
+                    grid.SetExposureMap(ExposureMap);
+                }
+
                 hasPendingExposureResults = false;
             }
 
             int numCells = grid.gridTiles.Count;
             if (numCells < 1) return;
 
-            if (TimeSliceBaseIndex < 0)
+            if (TimeSliceBaseIndex < 0 || TimeSliceBaseIndex >= numCells)
             {
                 TimeSliceBaseIndex = 0;
             }
 
-            // Trim excess ray count if we're near the end of the batch
-            int numExcessRays = TimeSliceBaseIndex + numRaysPerTimeSlice - numCells;
-            numRaysPerTimeSlice -= Mathf.Max(0, numExcessRays);
+            // Trim excess ray count if we're near the end of the full scan.
+            int remainingCells = numCells - TimeSliceBaseIndex;
+            numRaysPerTimeSlice = Mathf.Min(numRaysPerTimeSlice, remainingCells);
             if (numRaysPerTimeSlice < 1) return;
+
+            int sliceBaseIndex = TimeSliceBaseIndex;
 
             // Clean up temporary data from the previous slice
             if (CommandBuffer.IsCreated) CommandBuffer.Dispose();
@@ -131,7 +136,7 @@ namespace Thread.Core
                 GridPositions = GridPositions,
                 RaycastHeight = raycastHeight,
                 Commands = CommandBuffer,
-                TimeSliceBaseIndex = TimeSliceBaseIndex
+                TimeSliceBaseIndex = sliceBaseIndex
             };
 
             // 2. Gather Job: Analyzes the results
@@ -140,23 +145,23 @@ namespace Thread.Core
                 Commands = CommandBuffer,
                 Results = ResultBuffer,
                 ExposureMap = ExposureMap,
-                TimeSliceBaseIndex = TimeSliceBaseIndex
+                TimeSliceBaseIndex = sliceBaseIndex
             };
 
             // Schedule the job chain
             JobHandle setupJobHandle = setupJob.Schedule(numRaysPerTimeSlice, JobBatchSize);
-            
+
             JobHandle raycastJobHandle = RaycastCommand.ScheduleBatch(
-                CommandBuffer, 
-                ResultBuffer, 
-                JobBatchSize, 
+                CommandBuffer,
+                ResultBuffer,
+                JobBatchSize,
                 setupJobHandle
             );
 
             gatherJobHandle = gatherJob.Schedule(numRaysPerTimeSlice, JobBatchSize, raycastJobHandle);
 
             // Advance the time slice index
-            TimeSliceBaseIndex += numRaysPerTimeSlice;
+            TimeSliceBaseIndex = sliceBaseIndex + numRaysPerTimeSlice;
 
             // Check if we've reached the end of the grid
             if (TimeSliceBaseIndex >= numCells)
