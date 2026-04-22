@@ -103,11 +103,11 @@ namespace Thread.Core
                     // Spawn grid tile
                     var gridTile = Instantiate(gridTilePrefab, position, gridTilePrefab.transform.rotation, transform);
                     gridTile.Initialize(position, isWhite ? whiteTileMaterial : blackTileMaterial);
-                    
+
                     gridTiles.Add(gridTile);
                     isWhite = !isWhite;
                 }
-                
+
                 // Offset parity per column to create checkered pattern
                 isWhite = !isWhite;
             }
@@ -147,7 +147,7 @@ namespace Thread.Core
 
             var meshRenderer = groundQuad.AddComponent<MeshRenderer>();
             meshRenderer.material = new Material(Shader.Find("Standard")) { color = Color.white };
-            
+
             // Optimize renderer lighting settings
             meshRenderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
             meshRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;

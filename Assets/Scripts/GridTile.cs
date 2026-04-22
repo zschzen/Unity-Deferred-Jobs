@@ -24,7 +24,7 @@ namespace Thread.Core
             {
                 grid = FindObjectOfType<Grid>();
             }
-            
+
             propBlock = new MaterialPropertyBlock();
         }
 

@@ -83,7 +83,7 @@ namespace Thread.Core
 
             return nearestTile;
         }
-        
+
         private void OnDestroy()
         {
             if (gridPosNative.IsCreated) 
