@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3435395297934154121}
   - component: {fileID: 2618443830353458540}
   m_Layer: 4
-  m_Name: Quad
+  m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
